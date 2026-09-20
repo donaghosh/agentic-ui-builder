@@ -23,6 +23,14 @@ Hard rules:
  * Runs one agent turn. Calls onEvent({type, text}) for streaming UI updates.
  * type is one of: "text" | "tool" | "error".
  */
+// Persists the conversation for the life of the server process, so each turn
+// remembers prior messages (not just the code on disk). Resets on restart.
+let sessionId = null;
+
+export function resetConversation() {
+  sessionId = null;
+}
+
 export async function runAgentTurn(message, onEvent) {
   try {
     for await (const m of query({
@@ -35,8 +43,13 @@ export async function runAgentTurn(message, onEvent) {
         disallowedTools: ["Bash", "WebFetch", "WebSearch"],
         model: process.env.AGENT_MODEL || "claude-sonnet-5",
         maxTurns: 20,
+        // Resume the same conversation on every turn after the first.
+        ...(sessionId ? { resume: sessionId } : {}),
       },
     })) {
+      // The SDK stamps session_id on its messages (system init + result).
+      // Capture it so the next turn resumes this same conversation.
+      if (m?.session_id) sessionId = m.session_id;
       normalize(m, onEvent);
     }
   } catch (err) {

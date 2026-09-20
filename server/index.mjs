@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { runAgentTurn } from "./agent.mjs";
+import { runAgentTurn, resetConversation } from "./agent.mjs";
 import { raisePullRequest } from "./git.mjs";
 
 const app = express();
@@ -24,6 +24,11 @@ app.post("/api/chat", async (req, res) => {
     write({ type: "error", text: err?.message || String(err) });
   }
   res.end();
+});
+
+app.post("/api/reset", (_req, res) => {
+  resetConversation();
+  res.json({ ok: true });
 });
 
 app.post("/api/pr", async (req, res) => {

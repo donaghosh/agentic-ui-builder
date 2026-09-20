@@ -124,6 +124,20 @@ export default function App() {
     }
   }, []);
 
+  const newChat = useCallback(async () => {
+    if (busy) return;
+    await fetch("/api/reset", { method: "POST" }).catch(() => {});
+    setMessages([
+      {
+        id: uid(),
+        role: "assistant",
+        text: "Started a fresh conversation. Describe the UI you want.",
+      },
+    ]);
+    setPrState("idle");
+    setPrUrl(null);
+  }, [busy]);
+
   return (
     <div className="h-screen flex flex-col bg-slate-100 text-slate-900">
       <header className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200 shadow-sm">
@@ -132,6 +146,13 @@ export default function App() {
           <h1 className="font-semibold">Agentic UI Builder</h1>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={newChat}
+            disabled={busy}
+            className="px-3 py-2 rounded-lg border border-slate-300 text-slate-600 text-sm hover:bg-slate-50 disabled:opacity-50"
+          >
+            New chat
+          </button>
           {prUrl && (
             <a
               href={prUrl}
