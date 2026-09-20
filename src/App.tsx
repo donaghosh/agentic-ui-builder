@@ -111,6 +111,13 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
       setPrUrl(data.url);
       setPrState("done");
+      append({
+        id: uid(),
+        role: "system",
+        text: data.created
+          ? `✅ Opened PR: ${data.url}`
+          : `✅ Updated PR (${data.branch}): ${data.url}`,
+      });
     } catch (e: any) {
       append({ id: uid(), role: "error", text: `⚠️ PR failed: ${e.message}` });
       setPrState("idle");
@@ -140,7 +147,11 @@ export default function App() {
             disabled={prState === "working"}
             className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50"
           >
-            {prState === "working" ? "Raising PR…" : "Raise PR"}
+            {prState === "working"
+              ? "Working…"
+              : prState === "done"
+              ? "Update PR"
+              : "Raise PR"}
           </button>
         </div>
       </header>
@@ -221,6 +232,12 @@ function Bubble({ role, text }: { role: Role; text: string }) {
   if (role === "error")
     return (
       <div className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+        {text}
+      </div>
+    );
+  if (role === "system")
+    return (
+      <div className="text-sm text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 break-all">
         {text}
       </div>
     );
