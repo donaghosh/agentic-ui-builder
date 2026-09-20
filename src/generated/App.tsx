@@ -6,6 +6,9 @@ export default function App() {
       <div className="text-center px-6">
         <h1 className="text-6xl font-bold mb-4">Welcome</h1>
         <p className="text-gray-500 text-xl">Build UIs by chatting</p>
+        <button className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg">
+          Sign Up
+        </button>
       </div>
     </div>
   );
